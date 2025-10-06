@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2>Suppliers for Spare ID {{ spare_id }}</h2>
+
+  <form action="/add_supplier_ui/{{ spare_id }}" method="POST" class="mb-3">
+    <input type="text" name="name" placeholder="Supplier Name" required class="form-control mb-2">
+    <input type="email" name="email" placeholder="Supplier Email" required class="form-control mb-2">
+    <button type="submit" class="btn btn-success">Add Supplier</button>
+  </form>
+
+  <form method="get" action="/suppliers_ui/{{ spare_id }}" class="mb-3">
+  <input type="text" name="q" value="{{ query }}" 
+         placeholder="Search by ID, Name, or Email" 
+         class="form-control">
+</form>
+
+
+  <table class="table table-bordered table-striped">
+    <thead class="table-dark">
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Email</th>
+      </tr>
+    </thead>
+    <tbody>
+  {% for sup in suppliers %}
+  <tr>
+    <td>{{ sup[0] }}</td>
+    <td>
+      <form action="/edit_supplier/{{ sup[0] }}/{{ spare_id }}" method="POST" class="d-inline">
+        <input type="text" name="name" value="{{ sup[2] }}" required class="form-control form-control-sm">
+    </td>
+    <td>
+        <input type="email" name="email" value="{{ sup[3] }}" required class="form-control form-control-sm">
+    </td>
+    <td>
+        <button type="submit" class="btn btn-sm btn-primary">Update</button>
+      </form>
+      <form action="/delete_supplier/{{ sup[0] }}/{{ spare_id }}" method="POST" class="d-inline">
+        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+      </form>
+    </td>
+  </tr>
+  {% else %}
+  <tr><td colspan="4" class="text-center">No suppliers available</td></tr>
+  {% endfor %}
+</tbody>
+
+  </table>
+
+  <a href="/spares_ui" class="btn btn-secondary">Back</a>
+{% endblock %}

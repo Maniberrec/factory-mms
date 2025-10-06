@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2>Machines</h2>
+
+  <form action="/add_machine_ui" method="POST" class="mb-3">
+    <input type="text" name="name" placeholder="Machine Name" required class="form-control mb-2">
+    <input type="text" name="location" placeholder="Location" class="form-control mb-2">
+    <input type="date" name="last_maintenance" class="form-control mb-2">
+    <button type="submit" class="btn btn-success">Add Machine</button>
+  </form>
+
+<form method="get" action="/machines_ui" class="mb-3">
+  <input type="text" name="q" value="{{ query }}" 
+         placeholder="Search by ID, Name, or Location" 
+         class="form-control">
+</form>
+
+  <table class="table table-bordered table-striped">
+    <thead class="table-dark">
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Location</th>
+        <th>Last Maintenance</th>
+      </tr>
+    </thead>
+   <tbody>
+  {% for m in machines %}
+  <tr>
+    <td>{{ m[0] }}</td>
+    <td>
+      <form action="/edit_machine/{{ m[0] }}" method="POST" class="d-inline">
+        <input type="text" name="name" value="{{ m[1] }}" required class="form-control form-control-sm">
+    </td>
+    <td>
+        <input type="text" name="location" value="{{ m[2] }}" class="form-control form-control-sm">
+    </td>
+    <td>
+        <input type="date" name="last_maintenance" value="{{ m[3] }}" class="form-control form-control-sm">
+    </td>
+    <td>
+        <button type="submit" class="btn btn-sm btn-primary">Update</button>
+      </form>
+      <form action="/delete_machine/{{ m[0] }}" method="POST" class="d-inline">
+        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+      </form>
+    </td>
+  </tr>
+  {% else %}
+  <tr><td colspan="5" class="text-center">No machines available</td></tr>
+  {% endfor %}
+</tbody>
+
+  </table>
+
+ {% endblock %}

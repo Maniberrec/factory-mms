@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2>Spares</h2>
+
+  <form action="/add_spare_ui" method="POST" class="mb-3">
+    <input type="text" name="name" placeholder="Spare Name" required class="form-control mb-2">
+    <input type="number" name="stock" placeholder="Stock" required class="form-control mb-2">
+    <input type="text" name="location" placeholder="Location" class="form-control mb-2">
+    <button type="submit" class="btn btn-success">Add Spare</button>
+  </form>
+
+  <form method="get" action="/spares_ui" class="mb-3">
+  <input type="text" name="q" value="{{ query }}" 
+         placeholder="Search by ID, Name, or Location" 
+         class="form-control">
+</form>
+
+  <table class="table table-bordered table-striped">
+    <thead class="table-dark">
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Stock</th>
+        <th>Location</th>
+        <th>Suppliers</th>
+      </tr>
+    </thead>
+    <tbody>
+  {% for s in spares %}
+  <tr {% if s.low_stock_alert %} class="table-danger" {% endif %}>
+    <td>{{ s.id }}</td>
+    <td>
+      <form action="/edit_spare/{{ s.id }}" method="POST" class="d-inline">
+        <input type="text" name="name" value="{{ s.name }}" required class="form-control form-control-sm">
+    </td>
+    <td>
+        <input type="number" name="stock" value="{{ s.stock }}" required class="form-control form-control-sm">
+    </td>
+    <td>
+        <input type="text" name="location" value="{{ s.location }}" class="form-control form-control-sm">
+    </td>
+    <td>
+        <a href="/suppliers_ui/{{ s.id }}" class="btn btn-info btn-sm">Manage Suppliers</a>
+        <button type="submit" class="btn btn-sm btn-primary">Update</button>
+      </form>
+      <form action="/delete_spare/{{ s.id }}" method="POST" class="d-inline">
+        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+      </form>
+    </td>
+  </tr>
+  {% else %}
+  <tr><td colspan="5" class="text-center">No spares available</td></tr>
+  {% endfor %}
+</tbody>
+
+  </table>
+
+  <a href="/" class="btn btn-secondary">Back</a>
+{% endblock %}
