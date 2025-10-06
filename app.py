@@ -1,4 +1,6 @@
 from flask import Flask, request, jsonify, render_template, redirect, url_for, send_file
+import os
+from flask_sqlalchemy import SQLAlchemy
 import sqlite3, os, datetime
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
@@ -10,6 +12,32 @@ from email.mime.base import MIMEBase
 from email import encoders
 
 app = Flask(__name__)
+# Database configuration
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
+# ---------------- Database Models ----------------
+class Machine(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    location = db.Column(db.String(100))
+    status = db.Column(db.String(50))
+
+
+class Spare(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    quantity = db.Column(db.Integer)
+    machine_id = db.Column(db.Integer, db.ForeignKey('machine.id'))
+
+
+class Supplier(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    contact = db.Column(db.String(100))
+    email = db.Column(db.String(100))
+
 DB_NAME = "maintenance.db"
 LOW_STOCK_LIMIT = 5  # threshold for low stock
 
@@ -397,6 +425,8 @@ def send_pr_ui():
 
     result = send_email_with_attachment(filename, supplier_emails)
     return f"<h3>{result}</h3><a href='/'>⬅ Back</a>"
+with app.app_context():
+    db.create_all()
 
 # ---------- Run ----------
 if __name__ == '__main__':
