@@ -1,3 +1,11 @@
+setuptools>=68.0.0
+wheel>=0.42.0
+pip>=24.0
+Flask==3.1.2
+Flask-SQLAlchemy==3.1.1
+gunicorn==23.0.0
+reportlab==4.2.2
+openpyxl==3.1.5
 anyio==3.7.1
 appdirs==1.4.4
 argon2-cffi==21.3.0
