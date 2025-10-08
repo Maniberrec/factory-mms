@@ -1,5 +1,7 @@
 from flask import Flask, request, jsonify, render_template, redirect, url_for, send_file
-import os, sqlite3, datetime
+import os
+from flask_sqlalchemy import SQLAlchemy
+import sqlite3, os, datetime
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 import openpyxl
@@ -10,23 +12,11 @@ from email.mime.base import MIMEBase
 from email import encoders
 
 app = Flask(__name__)
+# Database configuration
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-DB_NAME = "maintenance.db"
-LOW_STOCK_LIMIT = 5
-
-SUPPLIER_EMAIL = "supplier@example.com"
-SENDER_EMAIL = "your_email@gmail.com"
-SENDER_PASSWORD = "your_app_password"
-
-def init_db():
-    conn = sqlite3.connect(DB_NAME)
-    c = conn.cursor()
-    # (your table creation code here)
-    conn.commit()
-    conn.close()
-
-init_db()
-
+db = SQLAlchemy(app)
 # ---------------- Database Models ----------------
 class Machine(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -441,4 +431,3 @@ with app.app_context():
 # ---------- Run ----------
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
-
