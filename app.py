@@ -117,6 +117,7 @@ def send_email_with_attachment(file_path, recipients, file_type="PDF"):
 
 # ---------- Dashboard ----------
 @app.route('/')
+@app.route('/index')
 def dashboard():
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
