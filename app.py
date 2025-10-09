@@ -116,7 +116,7 @@ def send_email_with_attachment(file_path, recipients, file_type="PDF"):
         return f"❌ Failed to send email: {str(e)}"
 
 # ---------- Dashboard ----------
-@app.route('/')
+@app.route('/',endpoint='index')
 @app.route('/index')
 def dashboard():
     conn = sqlite3.connect(DB_NAME)
