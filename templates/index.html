@@ -1,93 +1,28 @@
  {% extends "base.html" %}
-
 {% block content %}
-  <h1 class="mb-4">✅ Factory MMS Dashboard</h1>
-
-  <!-- Summary Section -->
-  <div class="row mb-4">
-    <div class="col-md-4">
-      <div class="card text-white bg-primary mb-3">
-        <div class="card-body">
-          <h5 class="card-title">Machines</h5>
-          <p class="card-text display-6">{{ total_machines }}</p>
-        </div>
-      </div>
+<div class="container text-center mt-5">
+  <h1 class="mb-4">Maintenance Management Dashboard</h1>
+  <div class="row justify-content-center">
+    <div class="col-sm-6 col-md-3 mb-3">
+      <a href="{{ url_for('machines') }}" class="btn btn-primary w-100 p-3">
+        <h5 class="mb-0">Machines</h5>
+      </a>
     </div>
-    <div class="col-md-4">
-      <div class="card text-white bg-success mb-3">
-        <div class="card-body">
-          <h5 class="card-title">Spares</h5>
-          <p class="card-text display-6">{{ total_spares }}</p>
-        </div>
-      </div>
+    <div class="col-sm-6 col-md-3 mb-3">
+      <a href="{{ url_for('spares') }}" class="btn btn-success w-100 p-3">
+        <h5 class="mb-0">Spares</h5>
+      </a>
     </div>
-    <div class="col-md-4">
-      <div class="card text-white {% if low_stock_count > 0 %}bg-danger{% else %}bg-secondary{% endif %} mb-3">
-        <div class="card-body">
-          <h5 class="card-title">Low Stock Alerts</h5>
-          <p class="card-text display-6">{{ low_stock_count }}</p>
-        </div>
-      </div>
+    <div class="col-sm-6 col-md-3 mb-3">
+      <a href="{{ url_for('suppliers') }}" class="btn btn-warning w-100 p-3">
+        <h5 class="mb-0">Suppliers</h5>
+      </a>
+    </div>
+    <div class="col-sm-6 col-md-3 mb-3">
+      <a href="{{ url_for('low_stock_alerts') }}" class="btn btn-danger w-100 p-3">
+        <h5 class="mb-0">Low Stock Alerts</h5>
+      </a>
     </div>
   </div>
-
-  <!-- Navigation -->
-  <div class="mb-3">
-    <a href="/machines_ui" class="btn btn-primary">Manage Machines</a>
-    <a href="/spares_ui" class="btn btn-warning">Manage Spares</a>
-  </div>
-
-  <!-- Purchase Request Actions -->
-  <h3>📦 Purchase Requests</h3>
-  <a href="/generate_pr/pdf" class="btn btn-danger">Download PR (PDF)</a>
-  <a href="/generate_pr/excel" class="btn btn-success">Download PR (Excel)</a>
-  <a href="/send_pr_ui" class="btn btn-info">📧 Email PR to Suppliers</a>
-
-    <!-- Quick Add Maintenance Log -->
-<h3 class="mt-4">📝 Quick Add Maintenance Log</h3>
-<form action="/add_log_ui" method="POST" class="mb-3 row g-3">
-  <div class="col-md-3">
-    <select name="machine_id" class="form-select" required>
-      <option value="">Select Machine</option>
-      {% for m in machines %}
-        <option value="{{ m[0] }}">{{ m[1] }} (ID: {{ m[0] }})</option>
-      {% endfor %}
-    </select>
-  </div>
-  <div class="col-md-5">
-    <input type="text" name="description" class="form-control" placeholder="Description" required>
-  </div>
-  <div class="col-md-3">
-    <input type="date" name="date" class="form-control" required>
-  </div>
-  <div class="col-md-1">
-    <button type="submit" class="btn btn-primary">Add</button>
-  </div>
-</form>
-
-
-  <!-- Recent Maintenance Logs -->
-  <h3 class="mt-4">🛠 Recent Maintenance Logs</h3>
-  <table class="table table-bordered table-striped">
-    <thead class="table-dark">
-      <tr>
-        <th>ID</th>
-        <th>Machine</th>
-        <th>Description</th>
-        <th>Date</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for log in recent_logs %}
-      <tr>
-        <td>{{ log[0] }}</td>
-        <td>{{ log[1] }}</td>
-        <td>{{ log[2] }}</td>
-        <td>{{ log[3] }}</td>
-      </tr>
-      {% else %}
-      <tr><td colspan="4" class="text-center">No logs available</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
+</div>
 {% endblock %}

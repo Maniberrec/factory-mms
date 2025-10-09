@@ -1,5 +1,7 @@
 from flask import Flask, request, jsonify, render_template, redirect, url_for, send_file
-import os, sqlite3, datetime
+import os
+from flask_sqlalchemy import SQLAlchemy
+import sqlite3, datetime
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 import openpyxl
@@ -11,21 +13,12 @@ from email import encoders
 
 app = Flask(__name__)
 
-DB_NAME = "maintenance.db"
-LOW_STOCK_LIMIT = 5
+# Database configuration
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///maintenance.db')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-SUPPLIER_EMAIL = "supplier@example.com"
-SENDER_EMAIL = "your_email@gmail.com"
-SENDER_PASSWORD = "your_app_password"
+db = SQLAlchemy(app)
 
-def init_db():
-    conn = sqlite3.connect(DB_NAME)
-    c = conn.cursor()
-    # (your table creation code here)
-    conn.commit()
-    conn.close()
-
-init_db()
 
 # ---------------- Database Models ----------------
 class Machine(db.Model):
@@ -265,6 +258,47 @@ def delete_spare(spare_id):
     conn.commit()
     conn.close()
     return redirect(url_for('spares_ui'))
+
+import os
+from flask import render_template
+
+# --- Low stock alerts route ---
+@app.route('/low_stock_alerts')
+def low_stock_alerts():
+    # threshold can be configured via environment variable; default = 5
+    try:
+        threshold = int(os.environ.get('LOW_STOCK_THRESHOLD', 5))
+    except ValueError:
+        threshold = 5
+
+    # Try to get low stock items in a robust way:
+    try:
+        # fetch all spares (assumes Spare is an SQLAlchemy model)
+        all_spares = Spare.query.all()
+    except Exception:
+        # If Spare is not defined or DB error, return an error page or empty list
+        all_spares = []
+
+    low_stock_items = []
+    for s in all_spares:
+        # try common field names
+        qty = None
+        if hasattr(s, 'quantity'):
+            qty = getattr(s, 'quantity')
+        elif hasattr(s, 'qty'):
+            qty = getattr(s, 'qty')
+        elif hasattr(s, 'quantity_available'):
+            qty = getattr(s, 'quantity_available')
+
+        # only collect if qty is numeric
+        try:
+            if qty is not None and int(qty) < threshold:
+                low_stock_items.append(s)
+        except Exception:
+            continue
+
+    return render_template('low_stock.html', spares=low_stock_items, threshold=threshold)
+
 
 # ---------- Suppliers ----------
 @app.route('/suppliers_ui/<int:spare_id>')

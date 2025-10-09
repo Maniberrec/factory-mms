@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Low Stock Spares (Threshold: {{ threshold }})</h2>
+
+  {% if spares and spares|length > 0 %}
+    <table class="table table-bordered mt-3">
+      <thead class="table-light">
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Quantity</th>
+          <th>Machine</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for spare in spares %}
+        <tr>
+          <td>{{ spare.id }}</td>
+          <td>{{ spare.name }}</td>
+          <td>
+            {{ spare.quantity if spare.quantity is defined else (spare.qty if spare.qty is defined else 'N/A') }}
+          </td>
+          <td>
+            {%- if spare.machine_id -%}
+              {{ spare.machine_id }}
+            {%- else -%}
+              -
+            {%- endif -%}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div class="alert alert-success mt-3">No low-stock items — all good!</div>
+  {% endif %}
+
+  <a href="{{ url_for('index') }}" class="btn btn-secondary mt-3">Back to Dashboard</a>
+</div>
+{% endblock %}
