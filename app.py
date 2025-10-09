@@ -265,23 +265,21 @@ from flask import render_template
 # --- Low stock alerts route ---
 @app.route('/low_stock_alerts')
 def low_stock_alerts():
-    # threshold can be configured via environment variable; default = 5
+    # threshold can be configured via environment variable; default = 0
     try:
-        threshold = int(os.environ.get('LOW_STOCK_THRESHOLD', 5))
+        threshold = int(os.environ.get('LOW_STOCK_THRESHOLD', 0))
     except ValueError:
-        threshold = 5
+        threshold = 0
 
     # Try to get low stock items in a robust way:
-    try:
-        # fetch all spares (assumes Spare is an SQLAlchemy model)
+     try:
         all_spares = Spare.query.all()
-    except Exception:
-        # If Spare is not defined or DB error, return an error page or empty list
+    except Exception as e:
+        print("Database error:", e)   # will show in Render logs
         all_spares = []
 
     low_stock_items = []
     for s in all_spares:
-        # try common field names
         qty = None
         if hasattr(s, 'quantity'):
             qty = getattr(s, 'quantity')
@@ -290,7 +288,6 @@ def low_stock_alerts():
         elif hasattr(s, 'quantity_available'):
             qty = getattr(s, 'quantity_available')
 
-        # only collect if qty is numeric
         try:
             if qty is not None and int(qty) < threshold:
                 low_stock_items.append(s)
