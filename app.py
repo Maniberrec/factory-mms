@@ -265,36 +265,39 @@ from flask import render_template
 # --- Low stock alerts route ---
 @app.route('/low_stock_alerts')
 def low_stock_alerts():
-    # threshold can be configured via environment variable; default = 0
-    try:
-        threshold = int(os.environ.get('LOW_STOCK_THRESHOLD', 0))
-    except ValueError:
-        threshold = 0
+    import os
+    from flask import render_template
 
-    # Try to get low stock items in a robust way:
-     try:
+    print("✅ /low_stock_alerts route triggered")
+
+    try:
+        threshold = int(os.environ.get('LOW_STOCK_THRESHOLD', 5))
+    except ValueError:
+        threshold = 5
+
+    try:
         all_spares = Spare.query.all()
+        print(f"Fetched {len(all_spares)} spares")
     except Exception as e:
-        print("Database error:", e)   # will show in Render logs
+        print("❌ Database error:", e)
         all_spares = []
 
     low_stock_items = []
     for s in all_spares:
-        qty = None
-        if hasattr(s, 'quantity'):
-            qty = getattr(s, 'quantity')
-        elif hasattr(s, 'qty'):
-            qty = getattr(s, 'qty')
-        elif hasattr(s, 'quantity_available'):
-            qty = getattr(s, 'quantity_available')
-
+        qty = getattr(s, 'quantity', None) or getattr(s, 'qty', None) or getattr(s, 'quantity_available', None)
         try:
             if qty is not None and int(qty) < threshold:
                 low_stock_items.append(s)
         except Exception:
             continue
 
-    return render_template('low_stock.html', spares=low_stock_items, threshold=threshold)
+    print(f"Low stock count: {len(low_stock_items)}")
+    try:
+        return render_template('low_stock.html', spares=low_stock_items, threshold=threshold)
+    except Exception as e:
+        print("❌ Template error:", e)
+        return f"Template rendering error: {e}", 500
+
 
 
 # ---------- Suppliers ----------
